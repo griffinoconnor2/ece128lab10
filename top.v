@@ -79,7 +79,7 @@ module top(
     SevenSegDisplay uut5(
         .clk(clk),
         .rst(rstn),
-        .count(o_read_data),
+        .product(o_read_data),
         .cat(cat),
         .an(an),
         .rdy(rdy)
