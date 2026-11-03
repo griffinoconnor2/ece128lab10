@@ -15,9 +15,9 @@ module SevenSegDisplay(
     wire clk1KHz;
     wire [15:0] bcd;
 
-    ClockDivider u0(.clkin(clk), .rstn(rstn), .clkout1KHz(clk1KHz));
+    ClockDivider u0(.clkin(clk), .rstn(~rst), .clkout1KHz(clk1KHz));
     BintoBCD u1(.clk(clk), .rstn(~rst), .en(1'b1), .count({4'b0000, product}), .BCD(bcd), .rdy(rdy));
-    MSD u2(.bcd(bcd), .clk(clk1KHz), .rstn(rstn), .cat(cat), .an(an));
+    MSD u2(.bcd(bcd), .clk(clk1KHz), .rstn(~rst), .cat(cat), .an(an));
 
 endmodule
 

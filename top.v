@@ -47,21 +47,12 @@ module top(
 
     //Wires for multiplier
     wire [7:0] productin;
-    reg [7:0] productreg;
 
     multiplierCombinational uut3(
         .a(data_out1),
         .b(data_out2),
         .p(productin)
     );
-
-    //Makes sure that the product output remains completely static between clock cycles
-    always @(posedge clk) begin
-        if(rst)
-            productreg <= 8'b0;
-        else
-            productreg <= productin;
-    end
 
     //Wires for RAM
     wire [7:0] o_read_data;
@@ -71,14 +62,13 @@ module top(
         .i_rst(rst),
         .i_write_en(W_R),
         .i_addr(ram_adr),
-        .i_write_data(productreg),
+        .i_write_data(productin),
         .o_read_data(o_read_data)
     );
 
-    wire rstn = ~rst;
     SevenSegDisplay uut5(
         .clk(clk),
-        .rst(rstn),
+        .rst(rst),
         .product(o_read_data),
         .cat(cat),
         .an(an),

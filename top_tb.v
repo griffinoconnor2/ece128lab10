@@ -36,43 +36,43 @@ module top_tb;
         rom_adr1 = 3'b001;
         rom_adr2 = 3'b010;
         ram_adr = 3'b000;
-        #100;
+        #1400;
 
         //Test case 2: ROM[3] * ROM[4] = RAM[1] (7 * 8 = 56 stored in address 1 of ram)
         rom_adr1 = 3'b011;
         rom_adr2 = 3'b100;
         ram_adr = 3'b001;
-        #100;
+        #1400;
 
         //Test case 3: ROM[5] * ROM[6] = RAM[2] (1 * 13 = 13 stored in address 2 of ram)
         rom_adr1 = 3'b101;
         rom_adr2 = 3'b110;
         ram_adr = 3'b010;
-        #100;
+        #1400;
 
         //Test case 4: ROM[7] * ROM[0] = RAM[3] (14 * 0 = 0 stored in address 3 of ram)
         rom_adr1 = 3'b111;
         rom_adr2 = 3'b000;
         ram_adr = 3'b011;
-        #100;
+        #1400;
 
         //Test Case 5: Read back each result in ram
         ram_adr = 3'b000;
-        #50;
+        #1400;
         ram_adr = 3'b001;
-        #50;
+        #1400;
         ram_adr = 3'b010;
-        #50;
+        #1400;
         ram_adr = 3'b011;
-        #50;
+        #1400;
         ram_adr = 3'b100;
-        #50;
+        #1400;
         ram_adr = 3'b101;
-        #50;
+        #1400;
         ram_adr = 3'b110;
-        #50;
+        #1400;
         ram_adr = 3'b111;
-        #50;
+        #1400;
 
         $finish;
     end
