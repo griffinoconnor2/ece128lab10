@@ -1,14 +1,17 @@
 1. Objectives
 
-The purpose of this lab is to implement two variations of a binary multiplier, one combinational and the other sequential. The combinational design requires both traditional logic gates (AND gates) and adders to implement, while the sequential design calls for an FSM-based design. Additionally, we opted to alter and reuse modules from our previous lab, outputting a counter on the Basys 3’s 7 segment display (7SD), to display the product of our multiplication.
+The purpose of this lab is to implement a complete system allowing the multiplication of 2 numbers. This entails reading hardcoded values from ROM, performing intermediate buffering and arithmetic, and finally outputting previously calculated values on the Basys 3’s seven segment display. Doing so requires the implementation of a control unit module to oversee the system’s progression using state machine logic.
 
 2. Introduction
 
-A multiplier is a digital logic circuit that takes 2 n-bit inputs to produce a single 2*n-bit output (product). Implemented either using purely combinational or a mix of both combinational and sequential logic, the multiplier performs rudimentary bit-shift operations and binary additions to produce its output. In our designs, we take 2 4-bit inputs (A, B) to generate the 8-bit output (product). The board’s switches are used to generate the input signals, and the product is output in decimal using our previous lab’s 7SD logic.
+Although this system requires decently complicated logic to perform the desired multiplication, we were able to reuse a number of previously written modules to simplify the design process. These included the SevenSegDisplay module (containing all necessary submodules to output data to the boards 7SD), ROM (8 line, 4-bit width) and RAM (8-line, 8-bit width) modules, and MultiplierCombinational module (performs the multiplication of 2 4-bit binary numbers to produce an 8-bit result).
 
-The combinational multiplier is made using only AND gates, adders, and intermediary bit-shifting operations. The internal logic mimics that of performing binary multiplication by hand. First, each bit of the multiplier (B) is sign extended and ANDed with the multiplicand (A). Next, the AND result is shifted (by m bits, based on the place of the multiplier bit, with m = 0 being the LSB of the original multiplier) to generate partial products. Lastly, all partial products are summed to generate the final product.
+The first new file we wrote was the RegFile module, a simple module allowing 2 values to be held prior to multiplication. Because our ROM module only permits a single value to be read per clock cycle, this module was essential in ensuring both the correct multiplier and multiplicand were available for the multiplier at once.
 
-The sequential multiplier requires additional complex logic and clock-based control. We implemented this version of the multiplier using a 4-state Moore style FSM (using combinational logic to transition between states), with S0_idle, S1_multiplication, S2_update_result, and S3_done. In S0, the partial_product and shift_count variables are initialized to 0, B is cloned to operand_bb, and A is 0 extended to 8 bits. The machine spends the majority of its time cycling between S1 and S2. S1 contains the majority of mathematical logic, generating a partial product to be added to the running partial product if the current multiplier bit is 1 (holding the partial product if it reads 0), left shifting the multiplicand to ensure the place is correct in the next iteration, and right shifting the operand_bb variable to prepare the desired bit of B to serve as the current bit for the subsequent iteration. S2 simply verifies whether or not 4 shifts have been performed, updating the final product variable if so and returning to S1 if not. The system additionally implements a reset to return to S0 mid calculation.
+The most complex of the three new modules was the ControlUnit module. This module contained the system’s FSM logic, dictating which actions were allowed to be taken at any given time. It uses 5 states, S0_idle (an idle state),  S1_read_rom1 (to read the first value from ROM), S2_read_rom2 (to read the second value from ROM), S3_write_ram (to calculate and commit the new product to ram), and S4_read_ram (to read any of the stored products from RAM). To allow previously stored values to be read, S4 remains in place until either or both of the ROM addresses are updated. To read an older RAM value, one can simply update the current RAM address to read its value. Additionally, this module sends signals to RegFile and RAM dictating permission to overwrite current data. To the RegFile specifically, it dictates both which register new data is written to and which register stored data is read from.
+
+Lastly, we joined each submodule into a single top module for implementation and testing. With just 2 ROM addresses, 1 RAM address, a clock signal, and 7SD outputs for I/O, it allows 2 numbers to be read from ROM, multiplied, stored to RAM, and displayed on the 7SD.
+
 
 3. Instructions for simulation and FPGA implementation
 
@@ -24,11 +27,19 @@ The sequential multiplier requires additional complex logic and clock-based cont
 
     a. Create a project in vivavdo containing all of these files.
 
-    b. Select the desired top module (Combinational or Sequential) as the top module.
+    b. Select the design file "top.v" as the top module.
 
     c. Generate the bitstream and connect to FPGA board.
 
-    d. Switches 0-3 correspond with multiplicand A, 4-7 correspond with multiplier B, and 8 corresponds with reset (active low).
+    d. SW[2:0] represent rom_adr1[2:0], SW[5:3] represent rom_adr2[2:0], SW[8:6] represent ram_adr[2:0], and SW[9] represents the rst signal.
+
+    e. First select the the RAM address you would like to write to.
+
+    f. Then select the ROM addresses of the inputs you would like.
+
+    g. Before writing a new product make sure you first select the new RAM address before changing either of the input ROM addresses.
+
+    h. When reading back results, DO NOT change any other inputs besides the RAM address you would like to read. Changing either ROM address will overwrite previously stored results at current selected location. 
 
 5. Additional Soures
 
